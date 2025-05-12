@@ -1,181 +1,548 @@
 <!DOCTYPE html>
-<html lang="he">
+<html lang="he" dir="rtl">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>משחק חשבון תחרותי</title>
-  <style>
-    body {
-      font-family: 'Segoe UI', sans-serif;
-      background-color: #f0f4f8;
-      text-align: center;
-      direction: rtl;
-    }
-
-    .container {
-      max-width: 900px;
-      margin: 0 auto;
-      padding: 2rem;
-    }
-
-    .player {
-      width: 45%;
-      display: inline-block;
-      vertical-align: top;
-      padding: 1rem;
-      border-radius: 10px;
-      box-shadow: 0 0 8px rgba(0,0,0,0.1);
-    }
-
-    .blue {
-      background-color: #dff0ff;
-    }
-
-    .green {
-      background-color: #e5fbe5;
-    }
-
-    .question {
-      font-size: 1.5rem;
-      margin: 1rem 0;
-    }
-
-    input {
-      padding: 0.5rem;
-      font-size: 1rem;
-      width: 80px;
-    }
-
-    button {
-      margin-top: 1rem;
-      padding: 0.6rem 1.2rem;
-      font-size: 1rem;
-      cursor: pointer;
-    }
-
-    .score {
-      margin-top: 1rem;
-      font-weight: bold;
-    }
-
-    .center {
-      margin-top: 2rem;
-    }
-
-    .red {
-      color: red;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>משחק חשבון תחרותי</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f8ff;
+            text-align: center;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+        }
+        .setup-area {
+            margin-bottom: 20px;
+            padding: 15px;
+            background-color: #eaf2f8;
+            border-radius: 8px;
+        }
+        .game-area {
+            display: none;
+            margin-top: 20px;
+        }
+        .player-container {
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+        .player {
+            flex: 1;
+            min-width: 250px;
+            margin: 10px;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 0 5px rgba(0,0,0,0.1);
+        }
+        #player1-area {
+            background-color: #d4efdf;
+        }
+        #player2-area {
+            background-color: #d6eaf8;
+        }
+        .problem {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            direction: ltr;  /* תרגילים משמאל לימין */
+            unicode-bidi: embed;
+            text-align: center;
+        }
+        input[type="text"], input[type="number"] {
+            padding: 8px;
+            margin: 5px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        input[type="number"] {
+            width: 70px;
+        }
+        button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 5px;
+        }
+        button:hover {
+            background-color: #2980b9;
+        }
+        .score {
+            font-size: 20px;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+        .strikes {
+            font-size: 20px;
+            color: #e74c3c;
+            margin-top: 10px;
+        }
+        .timer {
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+        .difficulty {
+            margin: 15px 0;
+        }
+        .status {
+            height: 20px;
+            margin-top: 5px;
+            font-weight: bold;
+        }
+        .correct {
+            color: green;
+        }
+        .incorrect {
+            color: red;
+        }
+        .results {
+            margin-top: 20px;
+            font-size: 18px;
+            font-weight: bold;
+        }
+        .reset-btn {
+            background-color: #e74c3c;
+            margin-top: 20px;
+        }
+        .reset-btn:hover {
+            background-color: #c0392b;
+        }
+        @media (max-width: 600px) {
+            .player-container {
+                flex-direction: column;
+            }
+        }
+    </style>
 </head>
 <body>
-  <div class="container">
-    <h1>משחק חשבון תחרותי</h1>
-
-    <div id="players">
-      <div class="player green" id="player2">
-        <h2>תלמיד 2</h2>
-        <div class="question" id="q2">...</div>
-        <input id="a2" type="number" />
-        <br/>
-        <button onclick="submitAnswer(2)">שלח</button>
-        <div class="score" id="s2">0 נקודות</div>
-        <div id="f2" class="red">0/3 פסילות</div>
-      </div>
-
-      <div class="player blue" id="player1">
-        <h2>תלמיד 1</h2>
-        <div class="question" id="q1">...</div>
-        <input id="a1" type="number" />
-        <br/>
-        <button onclick="submitAnswer(1)">שלח</button>
-        <div class="score" id="s1">0 נקודות</div>
-        <div id="f1" class="red">0/3 פסילות</div>
-      </div>
+    <div class="container">
+        <h1>משחק חשבון תחרותי</h1>
+        
+        <div class="setup-area" id="setup">
+            <h2>הגדרות משחק</h2>
+            <div>
+                <label for="player1-name">שם שחקן 1:</label>
+                <input type="text" id="player1-name" placeholder="שם שחקן 1">
+            </div>
+            <div>
+                <label for="player2-name">שם שחקן 2:</label>
+                <input type="text" id="player2-name" placeholder="שם שחקן 2">
+            </div>
+            
+            <div class="difficulty">
+                <label>רמת קושי:</label>
+                <select id="difficulty">
+                    <option value="easy">קל (1-10)</option>
+                    <option value="medium">בינוני (1-20)</option>
+                    <option value="hard">קשה (1-100)</option>
+                </select>
+            </div>
+            
+            <div>
+                <label>סוגי תרגילים:</label><br>
+                <input type="checkbox" id="addition" checked>
+                <label for="addition">חיבור</label>
+                
+                <input type="checkbox" id="subtraction" checked>
+                <label for="subtraction">חיסור</label>
+                
+                <input type="checkbox" id="multiplication" checked>
+                <label for="multiplication">כפל</label>
+                
+                <input type="checkbox" id="division">
+                <label for="division">חילוק</label>
+            </div>
+            
+            <div>
+                <label for="problem-count">מספר תרגילים:</label>
+                <input type="number" id="problem-count" value="10" min="1" max="50">
+            </div>
+            
+            <button id="start-game">התחל משחק</button>
+        </div>
+        
+        <div class="game-area" id="game">
+            <div class="timer" id="countdown"></div>
+            
+            <div class="player-container">
+                <div class="player" id="player1-area">
+                    <h2 id="player1-display">שחקן 1</h2>
+                    <div class="problem" id="player1-problem"></div>
+                    <input type="number" id="player1-answer" placeholder="תשובה">
+                    <button id="player1-submit">שלח</button>
+                    <div class="status" id="player1-status"></div>
+                    <div class="score">נקודות: <span id="player1-score">0</span></div>
+                    <div class="strikes">פסילות: <span id="player1-strikes">0</span>/3</div>
+                </div>
+                
+                <div class="player" id="player2-area">
+                    <h2 id="player2-display">שחקן 2</h2>
+                    <div class="problem" id="player2-problem"></div>
+                    <input type="number" id="player2-answer" placeholder="תשובה">
+                    <button id="player2-submit">שלח</button>
+                    <div class="status" id="player2-status"></div>
+                    <div class="score">נקודות: <span id="player2-score">0</span></div>
+                    <div class="strikes">פסילות: <span id="player2-strikes">0</span>/3</div>
+                </div>
+            </div>
+            
+            <div class="results" id="results"></div>
+            <button class="reset-btn" id="reset-game">משחק חדש</button>
+        </div>
     </div>
-
-    <div class="center">
-      <button onclick="restartGame()" style="background:red;color:white">משחק חדש</button>
-    </div>
-  </div>
-
-  <script>
-    const ops = ['+', '-', '*', '/'];
-    let questions = [[], []];
-    let correctAnswers = [0, 0];
-    let fails = [0, 0];
-    let current = 0;
-
-    function randomQuestion() {
-      const a = Math.floor(Math.random() * 10) + 1;
-      const b = Math.floor(Math.random() * 10) + 1;
-      const op = ops[Math.floor(Math.random() * ops.length)];
-      let q = `${a} ${op} ${b}`;
-      let ans;
-      if (op === '/') {
-        ans = +(a / b).toFixed(2);
-      } else {
-        ans = eval(q);
-      }
-      return { q, ans };
-    }
-
-    function loadQuestions() {
-      for (let i = 0; i < 2; i++) {
-        questions[i] = [];
-        for (let j = 0; j < 3; j++) {
-          questions[i].push(randomQuestion());
-        }
-      }
-      current = 0;
-      showQuestions();
-    }
-
-    function showQuestions() {
-      document.getElementById("q1").innerText = questions[0][current].q + " = ?";
-      document.getElementById("q2").innerText = questions[1][current].q + " = ?";
-    }
-
-    function submitAnswer(player) {
-      const input = document.getElementById("a" + player);
-      const answer = parseFloat(input.value);
-      const correct = questions[player - 1][current].ans;
-      if (answer === correct) {
-        correctAnswers[player - 1]++;
-      } else {
-        fails[player - 1]++;
-      }
-
-      document.getElementById("s" + player).innerText = correctAnswers[player - 1] + " נקודות";
-      document.getElementById("f" + player).innerText = fails[player - 1] + "/3 פסילות";
-      input.value = '';
-
-      // רק כששני שחקנים ענו - עוברים לשאלה הבאה
-      if (player === 2) {
-        current++;
-        if (current >= 3) {
-          endGame();
-        } else {
-          showQuestions();
-        }
-      }
-    }
-
-    function endGame() {
-      alert("המשחק הסתיים!\nתלמיד 1: " + correctAnswers[0] + " נק'\nתלמיד 2: " + correctAnswers[1] + " נק'");
-    }
-
-    function restartGame() {
-      correctAnswers = [0, 0];
-      fails = [0, 0];
-      document.getElementById("s1").innerText = "0 נקודות";
-      document.getElementById("s2").innerText = "0 נקודות";
-      document.getElementById("f1").innerText = "0/3 פסילות";
-      document.getElementById("f2").innerText = "0/3 פסילות";
-      loadQuestions();
-    }
-
-    // התחלה ראשונית
-    loadQuestions();
-  </script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Elements
+            const setupArea = document.getElementById('setup');
+            const gameArea = document.getElementById('game');
+            const startButton = document.getElementById('start-game');
+            const resetButton = document.getElementById('reset-game');
+            const countdownEl = document.getElementById('countdown');
+            const resultsEl = document.getElementById('results');
+            
+            // Player inputs
+            const player1NameInput = document.getElementById('player1-name');
+            const player2NameInput = document.getElementById('player2-name');
+            const player1Display = document.getElementById('player1-display');
+            const player2Display = document.getElementById('player2-display');
+            const player1Problem = document.getElementById('player1-problem');
+            const player2Problem = document.getElementById('player2-problem');
+            const player1Answer = document.getElementById('player1-answer');
+            const player2Answer = document.getElementById('player2-answer');
+            const player1Submit = document.getElementById('player1-submit');
+            const player2Submit = document.getElementById('player2-submit');
+            const player1Status = document.getElementById('player1-status');
+            const player2Status = document.getElementById('player2-status');
+            const player1ScoreDisplay = document.getElementById('player1-score');
+            const player2ScoreDisplay = document.getElementById('player2-score');
+            
+            // Game settings
+            const difficultySelect = document.getElementById('difficulty');
+            const additionCheckbox = document.getElementById('addition');
+            const subtractionCheckbox = document.getElementById('subtraction');
+            const multiplicationCheckbox = document.getElementById('multiplication');
+            const divisionCheckbox = document.getElementById('division');
+            const problemCountInput = document.getElementById('problem-count');
+            
+            // Game state
+            let player1Score = 0;
+            let player2Score = 0;
+            let player1Strikes = 0;
+            let player2Strikes = 0;
+            let player1CurrentProblem = null;
+            let player2CurrentProblem = null;
+            let player1Problems = [];
+            let player2Problems = [];
+            let player1ProblemIndex = 0;
+            let player2ProblemIndex = 0;
+            let gameActive = false;
+            
+            // Start the game
+            startButton.addEventListener('click', function() {
+                // Validate settings
+                if (!additionCheckbox.checked && !subtractionCheckbox.checked && 
+                    !multiplicationCheckbox.checked && !divisionCheckbox.checked) {
+                    alert('יש לבחור לפחות סוג תרגיל אחד');
+                    return;
+                }
+                
+                const problemCount = parseInt(problemCountInput.value);
+                if (isNaN(problemCount) || problemCount < 1) {
+                    alert('יש להזין מספר תרגילים חוקי');
+                    return;
+                }
+                
+                // Set player names
+                const player1Name = player1NameInput.value.trim() || "שחקן 1";
+                const player2Name = player2NameInput.value.trim() || "שחקן 2";
+                player1Display.textContent = player1Name;
+                player2Display.textContent = player2Name;
+                
+                // Reset scores, strikes and states
+                player1Score = 0;
+                player2Score = 0;
+                player1Strikes = 0;
+                player2Strikes = 0;
+                player1ScoreDisplay.textContent = "0";
+                player2ScoreDisplay.textContent = "0";
+                document.getElementById('player1-strikes').textContent = "0";
+                document.getElementById('player2-strikes').textContent = "0";
+                player1Status.textContent = "";
+                player2Status.textContent = "";
+                player1Status.className = "status";
+                player2Status.className = "status";
+                resultsEl.textContent = "";
+                
+                // Generate problems
+                generateProblems();
+                
+                // Set up first problem
+                setupNextProblem(1);
+                setupNextProblem(2);
+                
+                // Focus on player 1's answer field
+                player1Answer.focus();
+                
+                // Hide setup area and show game area
+                setupArea.style.display = 'none';
+                gameArea.style.display = 'block';
+                
+                gameActive = true;
+            });
+            
+            // Generate math problems
+            function generateProblems() {
+                player1Problems = [];
+                player2Problems = [];
+                player1ProblemIndex = 0;
+                player2ProblemIndex = 0;
+                
+                const difficulty = difficultySelect.value;
+                const problemCount = parseInt(problemCountInput.value);
+                
+                let range;
+                switch (difficulty) {
+                    case 'easy':
+                        range = 10;
+                        break;
+                    case 'medium':
+                        range = 20;
+                        break;
+                    case 'hard':
+                        range = 100;
+                        break;
+                    default:
+                        range = 10;
+                }
+                
+                for (let i = 0; i < problemCount; i++) {
+                    player1Problems.push(generateProblem(range));
+                    player2Problems.push(generateProblem(range));
+                }
+            }
+            
+            // Generate a single math problem
+            function generateProblem(range) {
+                const operations = [];
+                if (additionCheckbox.checked) operations.push('addition');
+                if (subtractionCheckbox.checked) operations.push('subtraction');
+                if (multiplicationCheckbox.checked) operations.push('multiplication');
+                if (divisionCheckbox.checked) operations.push('division');
+                
+                const operation = operations[Math.floor(Math.random() * operations.length)];
+                let num1, num2, answer, problem;
+                
+                switch (operation) {
+                    case 'addition':
+                        num1 = Math.floor(Math.random() * range) + 1;
+                        num2 = Math.floor(Math.random() * range) + 1;
+                        answer = num1 + num2;
+                        problem = `${num1} + ${num2} = ?`;
+                        break;
+                    case 'subtraction':
+                        num1 = Math.floor(Math.random() * range) + 1;
+                        num2 = Math.floor(Math.random() * num1) + 1; // Ensure positive result
+                        answer = num1 - num2;
+                        problem = `${num1} - ${num2} = ?`;
+                        break;
+                    case 'multiplication':
+                        // Keep multiplications simpler
+                        num1 = Math.floor(Math.random() * Math.min(12, range)) + 1;
+                        num2 = Math.floor(Math.random() * Math.min(12, range)) + 1;
+                        answer = num1 * num2;
+                        problem = `${num1} × ${num2} = ?`;
+                        break;
+                    case 'division':
+                        // Ensure clean division
+                        num2 = Math.floor(Math.random() * Math.min(12, range/2)) + 1;
+                        answer = Math.floor(Math.random() * Math.min(12, range/2)) + 1;
+                        num1 = num2 * answer;
+                        problem = `${num1} ÷ ${num2} = ?`;
+                        break;
+                }
+                
+                return { problem, answer };
+            }
+            
+            // Set up the next problem for a player
+            function setupNextProblem(playerNum) {
+                const problemEl = playerNum === 1 ? player1Problem : player2Problem;
+                const answerEl = playerNum === 1 ? player1Answer : player2Answer;
+                const statusEl = playerNum === 1 ? player1Status : player2Status;
+                const problems = playerNum === 1 ? player1Problems : player2Problems;
+                const problemIndex = playerNum === 1 ? player1ProblemIndex : player2ProblemIndex;
+                
+                if (problemIndex < problems.length) {
+                    const problem = problems[problemIndex];
+                    problemEl.textContent = problem.problem;
+                    if (playerNum === 1) {
+                        player1CurrentProblem = problem;
+                    } else {
+                        player2CurrentProblem = problem;
+                    }
+                    
+                    // Clear previous answer and status
+                    answerEl.value = '';
+                    statusEl.textContent = '';
+                    statusEl.className = 'status';
+                } else {
+                    // Player finished all problems
+                    problemEl.textContent = 'סיימת את כל התרגילים!';
+                    answerEl.disabled = true;
+                    
+                    // Check if both players are done
+                    checkGameOver();
+                }
+            }
+            
+            // Handle player 1 submit
+            player1Submit.addEventListener('click', function() {
+                if (!gameActive) return;
+                submitAnswer(1);
+            });
+            
+            player1Answer.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter' && gameActive) {
+                    submitAnswer(1);
+                }
+            });
+            
+            // Handle player 2 submit
+            player2Submit.addEventListener('click', function() {
+                if (!gameActive) return;
+                submitAnswer(2);
+            });
+            
+            player2Answer.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter' && gameActive) {
+                    submitAnswer(2);
+                }
+            });
+            
+            // Submit an answer
+            function submitAnswer(playerNum) {
+                const answerEl = playerNum === 1 ? player1Answer : player2Answer;
+                const statusEl = playerNum === 1 ? player1Status : player2Status;
+                const scoreEl = playerNum === 1 ? player1ScoreDisplay : player2ScoreDisplay;
+                const strikesEl = playerNum === 1 ? document.getElementById('player1-strikes') : document.getElementById('player2-strikes');
+                const currentProblem = playerNum === 1 ? player1CurrentProblem : player2CurrentProblem;
+                
+                if (!currentProblem || !gameActive) return;
+                
+                const userAnswer = parseInt(answerEl.value);
+                
+                if (isNaN(userAnswer)) {
+                    statusEl.textContent = 'יש להזין מספר';
+                    statusEl.className = 'status incorrect';
+                    return;
+                }
+                
+                if (userAnswer === currentProblem.answer) {
+                    // Correct answer
+                    statusEl.textContent = 'נכון!';
+                    statusEl.className = 'status correct';
+                    
+                    if (playerNum === 1) {
+                        player1Score++;
+                        player1ScoreDisplay.textContent = player1Score;
+                        player1ProblemIndex++;
+                    } else {
+                        player2Score++;
+                        player2ScoreDisplay.textContent = player2Score;
+                        player2ProblemIndex++;
+                    }
+                    
+                    setTimeout(() => {
+                        setupNextProblem(playerNum);
+                        playerNum === 1 ? player1Answer.focus() : player2Answer.focus();
+                    }, 500);
+                } else {
+                    // Incorrect answer
+                    statusEl.textContent = 'טעות! נסה שוב';
+                    statusEl.className = 'status incorrect';
+                    
+                    // Add strike
+                    if (playerNum === 1) {
+                        player1Strikes++;
+                        strikesEl.textContent = player1Strikes;
+                        
+                        // Check if player reached 3 strikes
+                        if (player1Strikes >= 3) {
+                            gameActive = false;
+                            const player2Name = player2Display.textContent;
+                            resultsEl.textContent = `${player2Name} ניצח! ל${player1Display.textContent} יש 3 פסילות.`;
+                            player1Answer.disabled = true;
+                            player2Answer.disabled = true;
+                            return;
+                        }
+                    } else {
+                        player2Strikes++;
+                        strikesEl.textContent = player2Strikes;
+                        
+                        // Check if player reached 3 strikes
+                        if (player2Strikes >= 3) {
+                            gameActive = false;
+                            const player1Name = player1Display.textContent;
+                            resultsEl.textContent = `${player1Name} ניצח! ל${player2Display.textContent} יש 3 פסילות.`;
+                            player1Answer.disabled = true;
+                            player2Answer.disabled = true;
+                            return;
+                        }
+                    }
+                    
+                    playerNum === 1 ? player1Answer.focus() : player2Answer.focus();
+                }
+            }
+            
+            // Check if the game is over
+            function checkGameOver() {
+                if (player1ProblemIndex >= player1Problems.length && player2ProblemIndex >= player2Problems.length) {
+                    gameActive = false;
+                    
+                    // Display final results
+                    const player1Name = player1Display.textContent;
+                    const player2Name = player2Display.textContent;
+                    
+                    if (player1Score > player2Score) {
+                        resultsEl.textContent = `${player1Name} ניצח עם ${player1Score} נקודות!`;
+                    } else if (player2Score > player1Score) {
+                        resultsEl.textContent = `${player2Name} ניצח עם ${player2Score} נקודות!`;
+                    } else {
+                        resultsEl.textContent = `תיקו! שני השחקנים סיימו עם ${player1Score} נקודות`;
+                    }
+                }
+            }
+            
+            // Reset the game
+            resetButton.addEventListener('click', function() {
+                // Show setup area and hide game area
+                setupArea.style.display = 'block';
+                gameArea.style.display = 'none';
+                
+                // Reset input fields
+                player1Answer.disabled = false;
+                player2Answer.disabled = false;
+            });
+        });
+    </script>
 </body>
 </html>
