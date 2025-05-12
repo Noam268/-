@@ -72,24 +72,24 @@
     <h1>משחק חשבון תחרותי</h1>
 
     <div id="players">
-      <div class="player blue" id="player1">
-        <h2>תלמיד 1</h2>
-        <div class="question" id="q1"></div>
-        <input id="a1" type="number" />
-        <br/>
-        <button onclick="submitAnswer(1)">שלח</button>
-        <div class="score" id="s1">0 נקודות</div>
-        <div id="f1" class="red">0/3 פסילות</div>
-      </div>
-
       <div class="player green" id="player2">
         <h2>תלמיד 2</h2>
-        <div class="question" id="q2"></div>
+        <div class="question" id="q2">...</div>
         <input id="a2" type="number" />
         <br/>
         <button onclick="submitAnswer(2)">שלח</button>
         <div class="score" id="s2">0 נקודות</div>
         <div id="f2" class="red">0/3 פסילות</div>
+      </div>
+
+      <div class="player blue" id="player1">
+        <h2>תלמיד 1</h2>
+        <div class="question" id="q1">...</div>
+        <input id="a1" type="number" />
+        <br/>
+        <button onclick="submitAnswer(1)">שלח</button>
+        <div class="score" id="s1">0 נקודות</div>
+        <div id="f1" class="red">0/3 פסילות</div>
       </div>
     </div>
 
@@ -110,8 +110,13 @@
       const b = Math.floor(Math.random() * 10) + 1;
       const op = ops[Math.floor(Math.random() * ops.length)];
       let q = `${a} ${op} ${b}`;
-      let ans = eval(op === '/' ? (a + " / " + b).toFixed(2) : q);
-      return { q, ans: Math.round(ans * 100) / 100 };
+      let ans;
+      if (op === '/') {
+        ans = +(a / b).toFixed(2);
+      } else {
+        ans = eval(q);
+      }
+      return { q, ans };
     }
 
     function loadQuestions() {
@@ -121,6 +126,7 @@
           questions[i].push(randomQuestion());
         }
       }
+      current = 0;
       showQuestions();
     }
 
@@ -143,6 +149,7 @@
       document.getElementById("f" + player).innerText = fails[player - 1] + "/3 פסילות";
       input.value = '';
 
+      // רק כששני שחקנים ענו - עוברים לשאלה הבאה
       if (player === 2) {
         current++;
         if (current >= 3) {
@@ -154,20 +161,20 @@
     }
 
     function endGame() {
-      alert("המשחק הסתיים!\nתלמיד 1: " + correctAnswers[0] + "\nתלמיד 2: " + correctAnswers[1]);
+      alert("המשחק הסתיים!\nתלמיד 1: " + correctAnswers[0] + " נק'\nתלמיד 2: " + correctAnswers[1] + " נק'");
     }
 
     function restartGame() {
-      current = 0;
       correctAnswers = [0, 0];
       fails = [0, 0];
-      loadQuestions();
       document.getElementById("s1").innerText = "0 נקודות";
       document.getElementById("s2").innerText = "0 נקודות";
       document.getElementById("f1").innerText = "0/3 פסילות";
       document.getElementById("f2").innerText = "0/3 פסילות";
+      loadQuestions();
     }
 
+    // התחלה ראשונית
     loadQuestions();
   </script>
 </body>
